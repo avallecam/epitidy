@@ -1,4 +1,8 @@
-epi_postadjusted <- function(wm1, ajustado_var) {
+#https://adv-r.hadley.nz/quasiquotation.html
+#19.4.1 Unquoting one argument
+epi_postadjusted <- function(wm1, ajustado_var,parsimonioso_tidy) {
+  
+  parsimonioso_tidy <- parsimonioso_tidy
   
   ex0_tidy <- parsimonioso_tidy %>% .[FALSE,]
   
@@ -7,7 +11,7 @@ epi_postadjusted <- function(wm1, ajustado_var) {
     x_var <- sym(ajustado_var[i])
     
     ex1_tidy <- update(wm1, expr(~ . + !!x_var)) %>% 
-      epi_tidymodel_pr() %>% slice(-c(1:7))
+      epi_tidymodel_pr() %>% slice(-c(1:dim(parsimonioso_tidy)[1]))
     
     ex0_tidy <- union_all(ex0_tidy,ex1_tidy)
     

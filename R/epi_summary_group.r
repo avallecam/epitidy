@@ -1,3 +1,7 @@
+#library(dplyr)
+#library(moments)
+#https://speakerdeck.com/hadley/tidy-evaluation-programming-with-ggplot2-and-dplyr?slide=42
+
 epi_summary_group <- function(df, g, x) {
   
   g_var <- enquo(g)
