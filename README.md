@@ -3,6 +3,7 @@
 
 # epitidy
 
+<<<<<<< HEAD
 <!-- badges: start -->
 
 [![Lifecycle:
@@ -388,3 +389,6 @@ glm_nested %>% epi_tidymodel_or()
 #> 3 agegrp45-64  1.12   0.293   3.06    1.74       5.50   0.000130
 #> 4 agegrp65+    1.56   0.415   4.75    2.12      10.8    0.00018
 ```
+=======
+the development version of this project is here: https://github.com/avallecam/avallecam
+>>>>>>> 2e57db3a83b49f09b04a9bd77f4f950782e3c5ff
