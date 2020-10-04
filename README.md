@@ -3,9 +3,9 @@
 
 # epitidy
 
-<<<<<<< HEAD
 <!-- badges: start -->
 
+[![DOI](https://zenodo.org/badge/177627370.svg)](https://zenodo.org/badge/latestdoi/177627370)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN
@@ -56,16 +56,15 @@ library(epitidy)
 set.seed(33)
 
 library(tidyverse)
-#> -- Attaching packages --------------------------------------------------------------- tidyverse 1.2.1 --
-#> v ggplot2 3.3.0     v purrr   0.3.3
-#> v tibble  3.0.3     v dplyr   1.0.1
-#> v tidyr   1.1.2     v stringr 1.4.0
-#> v readr   1.3.1     v forcats 0.5.0
-#> Warning: package 'ggplot2' was built under R version 3.6.3
+#> -- Attaching packages -------------------------------------------------- tidyverse 1.2.1 --
+#> v ggplot2 3.3.2.9000     v purrr   0.3.3     
+#> v tibble  3.0.3          v dplyr   1.0.1     
+#> v tidyr   1.1.2          v stringr 1.4.0     
+#> v readr   1.3.1          v forcats 0.5.0
 #> Warning: package 'tibble' was built under R version 3.6.3
 #> Warning: package 'dplyr' was built under R version 3.6.3
 #> Warning: package 'forcats' was built under R version 3.6.3
-#> -- Conflicts ------------------------------------------------------------------ tidyverse_conflicts() --
+#> -- Conflicts ----------------------------------------------------- tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 library(mosaicData)
@@ -389,6 +388,3 @@ glm_nested %>% epi_tidymodel_or()
 #> 3 agegrp45-64  1.12   0.293   3.06    1.74       5.50   0.000130
 #> 4 agegrp65+    1.56   0.415   4.75    2.12      10.8    0.00018
 ```
-=======
-the development version of this project is here: https://github.com/avallecam/avallecam
->>>>>>> 2e57db3a83b49f09b04a9bd77f4f950782e3c5ff
