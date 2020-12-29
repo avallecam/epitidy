@@ -9,9 +9,15 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
 )
+knitr::opts_chunk$set(fig.width=10, fig.height=4)
+options(tidyverse.quiet = TRUE)
 ```
+
 # epitidy
 
 <!-- badges: start -->
@@ -20,33 +26,54 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/epitidy)](https://cran.r-project.org/package=epitidy)
 <!-- badges: end -->
 
-The goal of epitidy is to ...
+The goal of epitidy is to provide a workflow to __summarise__, 
+__tidy up__ model outputs and __generate__ clean tables in a Epidemiologist-way. 
 
 ## Installation
 
-You can install the released version of epitidy from [CRAN](https://CRAN.R-project.org) with:
+<!-- You can install  -->
+<!-- the released version of epitidy from [CRAN](https://CRAN.R-project.org) with: -->
+
+<!-- ``` r -->
+<!-- install.packages("epitidy") -->
+<!-- ``` -->
+
+<!-- And  -->
+<!-- the development version from [GitHub](https://github.com/) with: -->
+
+You can install the development version from [GitHub](https://github.com/) with:
 
 ``` r
-install.packages("epitidy")
-```
-
-And the development version from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("avallecam/epitidy")
+if(!require("remotes")) install.packages("remotes")
+remotes::install_github("avallecam/epitidy")
 ```
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
 
-### epidemiologically usefull
+### core functions
 
 - `epi_tidymodel_*`: summmarize core estimates for OR, RR, PR regression models and linear regression coefficients.
 - `epi_tidymodel_up`: update raw models to generate various simple models or adjusted by one parsimous model
 - all of these are based on [`broom`](https://broom.tidyverse.org/index.html)
 
+### reproducible workflow
+
+Here we show how to:
+
+1. import a dataset from the `mosaicData` R package
+2. clean it to create variables using `dplyr::mutate`
+3. create a classic table 1 and table 2 with `compareGroups::create*`
+4. create a null regression model using `epitidy::epi_tidymodel_rr`
+5. create a simple model by scratch or updating the null model with one variable
+using `epitidy::epi_tidymodel_up`
+6. create more than one simple models using `purrr::map`
+7. create more than one multiple models with one common set of confunders
+using all tools above
+8. create a final table mixing the simple and multiple regression models
+because `tidyverse`
+9. perform a nested selection model procedure with `epitidy::epi_tidynested`
 
 ```{r example}
 library(epitidy)
@@ -88,10 +115,20 @@ smoke_clean <- smoke %>%
     random_cov2=rnorm(n = n(),mean = 5,sd = 10),
   )
 
+# table 1 -----------------------------------------------------------------
+
 # outcome_1: 1 is dead
 smoke_clean %>%
   mutate(outcome_1=as.factor(outcome_1)) %>%
   compareGroups::compareGroups(~.,data = .) %>%
+  compareGroups::createTable()
+
+# table 2 -----------------------------------------------------------------
+
+smoke_clean %>%
+  mutate(outcome_1=as.factor(outcome_1)) %>%
+  compareGroups::compareGroups(outcome~.,
+                               data = .) %>%
   compareGroups::createTable()
 
 # null model --------------------------------------------------------------

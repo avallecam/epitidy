@@ -12,29 +12,39 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/epitidy)](https://cran.r-project.org/package=epitidy)
 <!-- badges: end -->
 
-The goal of epitidy is to …
+The goal of epitidy is to provide a workflow to **summarise**, **tidy
+up** model outputs and **generate** clean tables in a
+Epidemiologist-way.
 
 ## Installation
 
-You can install the released version of epitidy from
-[CRAN](https://CRAN.R-project.org) with:
+<!-- You can install  -->
+
+<!-- the released version of epitidy from [CRAN](https://CRAN.R-project.org) with: -->
+
+<!-- ``` r -->
+
+<!-- install.packages("epitidy") -->
+
+<!-- ``` -->
+
+<!-- And  -->
+
+<!-- the development version from [GitHub](https://github.com/) with: -->
+
+You can install the development version from
+[GitHub](https://github.com/) with:
 
 ``` r
-install.packages("epitidy")
-```
-
-And the development version from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("avallecam/epitidy")
+if(!require("remotes")) install.packages("remotes")
+remotes::install_github("avallecam/epitidy")
 ```
 
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
 
-### epidemiologically usefull
+### core functions
 
   - `epi_tidymodel_*`: summmarize core estimates for OR, RR, PR
     regression models and linear regression coefficients.
@@ -42,6 +52,24 @@ This is a basic example which shows you how to solve a common problem:
     models or adjusted by one parsimous model
   - all of these are based on
     [`broom`](https://broom.tidyverse.org/index.html)
+
+### reproducible workflow
+
+Here we show how to:
+
+1.  import a dataset from the `mosaicData` R package
+2.  clean it to create variables using `dplyr::mutate`
+3.  create a classic table 1 and table 2 with `compareGroups::create*`
+4.  create a null regression model using `epitidy::epi_tidymodel_rr`
+5.  create a simple model by scratch or updating the null model with one
+    variable using `epitidy::epi_tidymodel_up`
+6.  create more than one simple models using `purrr::map`
+7.  create more than one multiple models with one common set of
+    confunders using all tools above
+8.  create a final table mixing the simple and multiple regression
+    models because `tidyverse`
+9.  perform a nested selection model procedure with
+    `epitidy::epi_tidynested`
 
 <!-- end list -->
 
@@ -56,17 +84,6 @@ library(epitidy)
 set.seed(33)
 
 library(tidyverse)
-#> -- Attaching packages -------------------------------------------------- tidyverse 1.2.1 --
-#> v ggplot2 3.3.2.9000     v purrr   0.3.3     
-#> v tibble  3.0.3          v dplyr   1.0.1     
-#> v tidyr   1.1.2          v stringr 1.4.0     
-#> v readr   1.3.1          v forcats 0.5.0
-#> Warning: package 'tibble' was built under R version 3.6.3
-#> Warning: package 'dplyr' was built under R version 3.6.3
-#> Warning: package 'forcats' was built under R version 3.6.3
-#> -- Conflicts ----------------------------------------------------- tidyverse_conflicts() --
-#> x dplyr::filter() masks stats::filter()
-#> x dplyr::lag()    masks stats::lag()
 library(mosaicData)
 # library(avallecam)
 
@@ -96,14 +113,13 @@ smoke_clean <- smoke %>%
     random_cov2=rnorm(n = n(),mean = 5,sd = 10),
   )
 
+# table 1 -----------------------------------------------------------------
+
 # outcome_1: 1 is dead
 smoke_clean %>%
   mutate(outcome_1=as.factor(outcome_1)) %>%
   compareGroups::compareGroups(~.,data = .) %>%
   compareGroups::createTable()
-#> Registered S3 method overwritten by 'SNPassoc':
-#>   method            from       
-#>   summary.haplo.glm haplo.stats
 #> 
 #> --------Summary descriptives table ---------
 #> 
@@ -135,6 +151,41 @@ smoke_clean %>%
 #> random_cov2 5.12 (9.70) 1314 
 #> ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
 
+# table 2 -----------------------------------------------------------------
+
+smoke_clean %>%
+  mutate(outcome_1=as.factor(outcome_1)) %>%
+  compareGroups::compareGroups(outcome~.,
+                               data = .) %>%
+  compareGroups::createTable()
+#> 
+#> --------Summary descriptives table by 'outcome'---------
+#> 
+#> ______________________________________________ 
+#>                Alive        Dead     p.overall 
+#>                N=945       N=369               
+#> ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ 
+#> smoker:                                0.003   
+#>     No      502 (53.1%) 230 (62.3%)            
+#>     Yes     443 (46.9%) 139 (37.7%)            
+#> age         40.1 (13.8) 64.4 (12.8)   <0.001   
+#> outcome_1:                            <0.001   
+#>     0       945 (100%)   0 (0.00%)             
+#>     1        0 (0.00%)   369 (100%)            
+#> outcome_2:                            <0.001   
+#>     Dead     0 (0.00%)   369 (100%)            
+#>     Alive   945 (100%)   0 (0.00%)             
+#> smoker_2:                              0.003   
+#>     Yes     443 (46.9%) 139 (37.7%)            
+#>     No      502 (53.1%) 230 (62.3%)            
+#> agegrp:                               <0.001   
+#>     18-44   597 (63.2%)  27 (7.32%)            
+#>     45-64   314 (33.2%) 133 (36.0%)            
+#>     65+     34 (3.60%)  209 (56.6%)            
+#> random_cov1 0.04 (1.00) -0.03 (1.01)   0.244   
+#> random_cov2 4.98 (9.69) 5.49 (9.72)    0.393   
+#> ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+
 # null model --------------------------------------------------------------
 
 smoke_clean %>% pull(outcome_1) %>% mean()
@@ -146,7 +197,6 @@ glm_null <- glm(outcome_1 ~ 1,
                 na.action = na.exclude)
 
 glm_null %>% epi_tidymodel_rr()
-#> Joining, by = "rowname"
 #> # A tibble: 1 x 7
 #>   term        log.rr     se    rr conf.low conf.high p.value
 #>   <chr>        <dbl>  <dbl> <dbl>    <dbl>     <dbl>   <dbl>
@@ -160,7 +210,6 @@ glm(outcome_1 ~ smoker,
     family = poisson(link = "log"),
     na.action = na.exclude) %>%
   epi_tidymodel_rr()
-#> Joining, by = "rowname"
 #> # A tibble: 2 x 7
 #>   term        log.rr     se    rr conf.low conf.high p.value
 #>   <chr>        <dbl>  <dbl> <dbl>    <dbl>     <dbl>   <dbl>
@@ -171,7 +220,6 @@ glm(outcome_1 ~ smoker,
 epi_tidymodel_up(reference_model = glm_null,
                  variable = dplyr::sym("smoker")) %>%
   epi_tidymodel_rr()
-#> Joining, by = "rowname"
 #> # A tibble: 2 x 7
 #>   term        log.rr     se    rr conf.low conf.high p.value
 #>   <chr>        <dbl>  <dbl> <dbl>    <dbl>     <dbl>   <dbl>
@@ -197,11 +245,6 @@ simple_models <- smoke_clean %>%
   unnest(cols = c(simple_tidy)) %>%
   #filter out intercepts
   filter(term!="(Intercept)")
-#> Joining, by = "rowname"
-#> Joining, by = "rowname"
-#> Joining, by = "rowname"
-#> Joining, by = "rowname"
-#> Joining, by = "rowname"
 
 simple_models
 #> # A tibble: 6 x 10
@@ -247,8 +290,6 @@ multiple_model <- simple_models %>%
   #CAREFULL!
   #this only remove confunders, requires manual changes!
   slice(-(1:2))
-#> Joining, by = "rowname"
-#> Joining, by = "rowname"
 
 multiple_model
 #> # A tibble: 2 x 8
@@ -336,8 +377,6 @@ add1(glm_null,
      scope = myformula,
      test = "LRT") %>%
   epi_tidynested(1) #-> rank_l1
-#> Warning in tidy.anova(.): The following column names in ANOVA output were
-#> not recognized or transformed: Deviance, AIC, LRT
 #> # A tibble: 6 x 5
 #>   term           df   LRT_1 p.value_1 rank_1
 #>   <chr>       <dbl>   <dbl>     <dbl> <chr> 
@@ -352,8 +391,6 @@ add1(update(glm_null, ~ . + age),
      scope = myformula,
      test = "LRT") %>%
   epi_tidynested(2) #-> rank_l2
-#> Warning in tidy.anova(.): The following column names in ANOVA output were
-#> not recognized or transformed: Deviance, AIC, LRT
 #> # A tibble: 5 x 5
 #>   term           df    LRT_2 p.value_2 rank_2
 #>   <chr>       <dbl>    <dbl>     <dbl> <chr> 
@@ -367,8 +404,6 @@ add1(update(glm_null, ~ . + age + agegrp),
      scope = myformula,
      test = "LRT") %>%
   epi_tidynested(3) #-> rank_l3
-#> Warning in tidy.anova(.): The following column names in ANOVA output were
-#> not recognized or transformed: Deviance, AIC, LRT
 #> # A tibble: 4 x 5
 #>   term           df    LRT_3 p.value_3 rank_3
 #>   <chr>       <dbl>    <dbl>     <dbl> <chr> 
@@ -379,7 +414,6 @@ add1(update(glm_null, ~ . + age + agegrp),
 
 glm_nested <- update(glm_null, ~ . + age + agegrp)
 glm_nested %>% epi_tidymodel_or()
-#> Joining, by = "rowname"
 #> # A tibble: 4 x 7
 #>   term         log.or      se     or conf.low conf.high  p.value
 #>   <chr>         <dbl>   <dbl>  <dbl>    <dbl>     <dbl>    <dbl>
