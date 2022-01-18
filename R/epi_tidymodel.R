@@ -223,10 +223,12 @@
 #'
 
 epi_tidymodel_or <- function(model_output,digits=5) {
-  m1 <- model_output %>% tidy() %>% mutate(or=exp(estimate)) %>% rownames_to_column()
-  m2 <- model_output %>% confint_tidy() %>% mutate_all(list(exp)) %>% rownames_to_column()
+  # m1 <- model_output %>% tidy(conf.int=TRUE) %>% mutate(or=exp(estimate)) %>% rownames_to_column()
+  # m2 <- model_output %>% confint_tidy() %>% mutate_all(list(exp)) %>% rownames_to_column()
+  m3 <- model_output %>% tidy(conf.int=TRUE) %>% mutate(or=exp(estimate)) %>% rownames_to_column()
 
-  left_join(m1,m2) %>%
+  # left_join(m1,m2) %>%
+  m3 %>%
     dplyr::select(term,log.or=estimate,se=std.error,or,
                   conf.low,conf.high,p.value) %>%
     mutate_at(.vars = vars(-term,-p.value),round, digits = digits) %>%

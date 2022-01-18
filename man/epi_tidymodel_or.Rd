@@ -80,7 +80,7 @@ smoke_clean <- smoke \%>\%
     outcome_1=as.numeric(outcome),
     outcome_1=outcome_1-1,
     outcome_2=fct_rev(outcome),
-    #exposiciÃ³n
+    #exposición
     smoker_2=fct_rev(smoker),
     #confusor
     #agegrp=cut(age,breaks = c(18,44,64,Inf),include.lowest = T))
